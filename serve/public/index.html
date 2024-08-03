@@ -1,4 +1,4 @@
- <!-- public/index.html -->
+<!-- public/index.html -->
    
    <!-- headタグの中にはメタデータ等を記載する -->
    <head>
@@ -28,7 +28,7 @@
       // id: previousWordのタグを取得
       const paragraph = document.querySelector("#previousWord");
       // 取得したタグの中身を書き換える
-      paragraph.innerHTML = `前の単語: ${previousWord}`;
+      paragraph.innerHTML = `過去に使用した単語: ${previousWord}`;
     }
     // 送信ボタンの押下時に実行
    document.querySelector("#nextWordSendButton").onclick = async(event) => {
@@ -69,7 +69,7 @@
       // id: previousWordのタグを取得
       const paragraph = document.querySelector("#previousWord");
       // 取得したタグの中身を書き換える
-             paragraph.innerHTML = `前の単語: ${previousWord}`;
+             paragraph.innerHTML = `過去に使用した単語: ${previousWord}`;
       // inputタグの中身を消去する
       nextWordInput.value = "";
     }
