@@ -6,6 +6,9 @@ import { serveDir } from "https://deno.land/std@0.223.0/http/file_server.ts";
 
 // 直前の単語を保持しておく
  let previousWord = "しりとり";
+ let wordHistories = ["しりとり"];
+
+
 
 // localhostにDenoのHTTPサーバーを展開
 Deno.serve(async (request) => {
@@ -25,9 +28,41 @@ Deno.serve(async (request) => {
              const requestJson = await request.json();
              // JSONの中からnextWordを取得
              const nextWord = requestJson["nextWord"];
-    
+
+
+             //追加 
+             // 入力された単語が既に使用されているか確認
+        if (wordHistories.includes(nextWord)) {
+            return new Response(
+                JSON.stringify({
+                    "errorMessage": "過去に使用した単語が入力されたら、ゲームを終了する",
+                    "errorCode": "ERR_WORD_ALREADY_USED"
+                }),
+                {
+                    status: 400,
+                    headers: { "Content-Type": "application/json; charset=utf-8" },
+                }
+            );
+        }
              // previousWordの末尾とnextWordの先頭が同一か確認
              if (previousWord.slice(-1) === nextWord.slice(0, 1)) {
+               //追加
+                // 末尾が「ん」になっている場合
+            if (nextWord.slice(-1) === 'ん') {
+                // エラーを返す処理を追加
+                // errorCodeを固有のものにして、末尾が「ん」の時に発生したエラーだとWeb側に通知できるようにする
+                const errorCode = 'ERR_ENDS_WITH_N';
+                return new Response(
+                    JSON.stringify({
+                        "errorMessage": "末尾が「ん」で終わる単語が入力されたら、ゲームを終了する",
+                        "errorCode": errorCode
+                    }),
+                    {
+                        status: 400,
+                        headers: { "Content-Type": "application/json; charset=utf-8" },
+                    }
+                );
+            }
                  // 同一であれば、previousWordを更新
                  previousWord = nextWord;
              }
@@ -47,8 +82,18 @@ Deno.serve(async (request) => {
      
              // 現在の単語を返す
              return new Response(previousWord);
+        }
+         // POST /reset: リセットする
+         if (request.method === 'POST' && pathname === '/reset') {
+            // 既存の単語の履歴を初期化する
+            wordHistories = []; // 単語履歴をリセットする
+            previousWord = 'しりとり'; // 初期化した単語を設定する
+            // 初期化した単語を返す
+            return new Response(previousWord);
          }
-    // ./public以下のファイルを公開
+ 
+   
+// ./public以下のファイルを公開
     return serveDir(
         request,
         {
@@ -63,5 +108,4 @@ Deno.serve(async (request) => {
         }
     );
 });
-
 
